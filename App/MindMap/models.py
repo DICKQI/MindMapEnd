@@ -9,11 +9,11 @@ from django.utils.timezone import now
 class MindMap(models.Model):
     mapId = models.BigIntegerField(verbose_name='导图id', primary_key=True, blank=False, unique=True)  # 同样作为shareID
 
+    mapName = models.CharField(verbose_name='导图名', max_length=100, default='', blank=False)
+
     roomMaster = models.ForeignKey(UserInfo, verbose_name='导图创建人', on_delete=models.CASCADE, blank=False, default='')
 
     roomPassword = models.CharField(verbose_name='导图密码', max_length=20, blank=False, default='')
-
-    # member = models.ManyToManyField(UserInfo, verbose_name='导图协作成员')
 
     create_date = models.DateTimeField(verbose_name='创建时间', default=now)
 
@@ -42,8 +42,7 @@ class MindNode(models.Model):
 
     type = models.CharField(verbose_name='节点类型', max_length=20, choices=type, default='root')
 
-    parent_node = models.ForeignKey('self', verbose_name='节点的父节点', on_delete=models.CASCADE, blank=True,
-                                    default='')  # 根节点没有父结点
+    parent_node = models.BigIntegerField(verbose_name='节点的父节点', blank=True, default=0)  # 根节点没有父结点
 
     belong_Map = models.ForeignKey(MindMap, verbose_name='所属导图', on_delete=models.CASCADE, blank=False, default='')
 

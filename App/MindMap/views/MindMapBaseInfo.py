@@ -10,7 +10,7 @@ import json
 
 class MindMapView(APIView):
     FIELDS = [
-        'nodeId', 'content', 'parent_node'
+        'id', 'content', 'parent_node'
     ]
 
     @check_login
@@ -26,6 +26,7 @@ class MindMapView(APIView):
         mapId = self.newShareID()
         newMindMap = MindMap.objects.create(
             mapId=mapId,
+            mapName=jsonParams.get('name'),
             roomMaster=user,
             roomPassword=jsonParams.get('password')
         )
@@ -37,11 +38,22 @@ class MindMapView(APIView):
                     nodeId=node['nodeId'],
                     content=node['content'],
                     type='root',
-                    parent_node_id=0,
-                    belong_Map=newMindMap
+                    parent_node=0,
+                    belong_Map=newMindMap  # 导图id可以作为唯一
                 )
             else:
-                pass
+                MindNode.objects.create(
+                    nodeId=node['nodeId'],
+                    content=node['content'],
+                    type='seed',
+                    parent_node=node['parent_node'],
+                    belong_Map=newMindMap
+                )
+        return JsonResponse({
+            'status': True,
+            'shareID': newMindMap.mapId,
+            'roomMaster': user.nickname
+        })
 
     @check_login
     def get(self, request, shareID):
@@ -80,6 +92,7 @@ class MindMapView(APIView):
         return JsonResponse({
             'status': True,
             'shareId': shareID,
+            'name': mindmap.mapName,
             'auth': auth,
             'node': mind_node_dict
         })
@@ -89,10 +102,3 @@ class MindMapView(APIView):
         shareId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
         return shareId
 
-    def newNodeId(self, inNodeId):
-        now = datetime.now()
-        nodeId = int(str(inNodeId) +
-                     str(datetime.now().minute) if len(str(datetime.now().minute)) == 2 else '0' +
-                                                                                             str(
-                                                                                                 datetime.now().second) if len(
-            str(datetime.now().second)) == 2 else '0' + str(datetime.now().second))

@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from App.account.models import UserInfo, UserPassword
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password, make_password
-from common.userAuthCheck import getUser
+from common.userAuthCheck import getUser, check_login
 import json
 
 
@@ -54,6 +54,20 @@ class AccountBaseView(APIView):
                 'status': False,
                 'errMsg': '密码错误'
             }, status=401)
+
+    @check_login
+    def delete(self, request):
+        """
+        登出
+        :param request:
+        :return:
+        """
+        user = getUser(email=request.session.get('login'))
+        request.session['login'] = None
+        return JsonResponse({
+            'status': True,
+            'id': user.id
+        })
 
 
 class AccountRegisterView(APIView):

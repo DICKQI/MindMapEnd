@@ -23,5 +23,19 @@ def model_to_dict(instance, fields=None, exclude=None, *args, **kwargs):
             continue
         if exclude and f.name in exclude:
             continue
+        if isinstance(f, DateTimeField):
+            value = formatDatetime(value)
         data[f.name] = value
     return data
+
+
+def formatDatetime(value):
+    data_time = str(value)
+    year = data_time[0:4]
+    month = data_time[5:7]
+    day = data_time[8:10]
+    hour = data_time[11:13]
+    min = data_time[14:16]
+    sec = data_time[17:19]
+    value = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec
+    return value
