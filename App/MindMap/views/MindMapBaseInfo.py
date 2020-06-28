@@ -21,39 +21,43 @@ class MindMapView(APIView):
         :param request:
         :return:
         """
-        params = request.body
-        jsonParams = json.loads(params.decode('utf-8'))
-        user = getUser(email=request.session.get('login'))
-        mapId = self.newShareID()
-        newMindMap = MindMap.objects.create(
-            mapId=mapId,
-            mapName=jsonParams.get('name'),
-            roomMaster=user,
-            roomPassword=jsonParams.get('password')
-        )
-        node_list = jsonParams.get('node')
-        for node in node_list:
-            if node['parent_node'] == 0:
-                MindNode.objects.create(
-                    nodeId=node['nodeId'],
-                    content=node['content'],
-                    type='root',
-                    parent_node=0,
-                    belong_Map=newMindMap  # 导图id可以作为唯一
-                )
-            else:
-                MindNode.objects.create(
-                    nodeId=node['nodeId'],
-                    content=node['content'],
-                    type='seed',
-                    parent_node=node['parent_node'],
-                    belong_Map=newMindMap
-                )
-        return JsonResponse({
-            'status': True,
-            'shareID': newMindMap.mapId,
-            'roomMaster': user.nickname
-        })
+        try:
+            params = request.body
+            print(params.decode('utf-8'))
+            jsonParams = json.loads(params.decode('utf-8'))
+            user = getUser(email=request.session.get('login'))
+            mapId = self.newShareID()
+            newMindMap = MindMap.objects.create(
+                mapId=mapId,
+                mapName=jsonParams.get('name'),
+                roomMaster=user,
+                roomPassword=jsonParams.get('password')
+            )
+            node_list = jsonParams.get('node')
+            for node in node_list:
+                if node['parent_node'] == 0:
+                    MindNode.objects.create(
+                        nodeId=node['nodeId'],
+                        content=node['content'],
+                        type='root',
+                        parent_node=0,
+                        belong_Map=newMindMap  # 导图id可以作为唯一
+                    )
+                else:
+                    MindNode.objects.create(
+                        nodeId=node['nodeId'],
+                        content=node['content'],
+                        type='seed',
+                        parent_node=node['parent_node'],
+                        belong_Map=newMindMap
+                    )
+            return JsonResponse({
+                'status': True,
+                'shareID': newMindMap.mapId,
+                'roomMaster': user.nickname
+            })
+        except Exception as e:
+            print(e)
 
     @check_login
     def get(self, request, shareID):
