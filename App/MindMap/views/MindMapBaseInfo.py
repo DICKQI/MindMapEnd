@@ -93,7 +93,10 @@ class MindMapView(APIView):
             'status': True,
             'shareId': shareID,
             'name': mindmap.mapName,
-            'roomMaster': mindmap.roomMaster.nickname,
+            'roomMaster': {
+                'name': mindmap.roomMaster.nickname,
+                'id': mindmap.roomMaster.id
+            },
             'auth': auth,
             'node': mind_node_dict
         })
