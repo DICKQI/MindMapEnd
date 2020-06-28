@@ -3,3 +3,4 @@ venv
 __pycache__
 App/account/migrations
 App/MindMap/migrations
+db.sqlite3

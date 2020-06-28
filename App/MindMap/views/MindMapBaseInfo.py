@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.db.models import Q
+from django.utils.timezone import now
 from App.MindMap.models import MindMap, MindNode, MindMapCoMember
 from rest_framework.views import APIView
 from common.userAuthCheck import check_login, getUser
@@ -34,7 +35,6 @@ class MindMapView(APIView):
         for node in node_list:
             if node['parent_node'] == 0:
                 MindNode.objects.create(
-                    # nodeId=self.newNodeId(node['nodeId']),
                     nodeId=node['nodeId'],
                     content=node['content'],
                     type='root',
@@ -96,6 +96,52 @@ class MindMapView(APIView):
             'auth': auth,
             'node': mind_node_dict
         })
+
+    @check_login
+    def put(self, request, shareID):
+        """
+        再次开启共享
+        :param request:
+        :param shareID:
+        :return:
+        """
+        mindmap = MindMap.objects.filter(mapId=shareID)
+        if not mindmap.exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图不存在'
+            }, status=404)
+        mindmap = mindmap[0]
+        user = getUser(email=request.session.get('login'))
+        if mindmap.roomMaster != user:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '你不是导图所有者，不能进行操作'
+            }, status=401)
+        params = request.body
+        jsonParams = json.loads(params.decode('utf-8'))
+        mindmap.mapName = jsonParams.get('mapName')
+        mindmap.last_mod_date = now()
+        mindmap.shareStatus = True
+        nodeList = jsonParams.get('node')
+        for node in nodeList:
+            MindNode.objects.create(
+                nodeId=node['nodeId'],
+                content=node['content'],
+                type='seed',
+                parent_node=node['parent_node'],
+                belong_Map=mindmap
+            )
+        mindmap.save()
+        return JsonResponse({
+            'status': True,
+            'shareID': mindmap.mapId,
+            'roomMaster': user.nickname
+        })
+
+
+    @check_login
+
 
     def newShareID(self):
         now = datetime.now()

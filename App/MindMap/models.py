@@ -15,6 +15,8 @@ class MindMap(models.Model):
 
     roomPassword = models.CharField(verbose_name='导图密码', max_length=20, blank=False, default='')
 
+    shareStatus = models.BooleanField(verbose_name='共享状态', default=True)
+
     create_date = models.DateTimeField(verbose_name='创建时间', default=now)
 
     last_mod_date = models.DateTimeField(verbose_name='最后修改时间', default=now)
