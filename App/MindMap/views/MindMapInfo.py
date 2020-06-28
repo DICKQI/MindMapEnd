@@ -29,16 +29,17 @@ class MindMapNodeInfoView(APIView):
             Q(map=mindMap) &
             Q(user=user)
         )
-        if not coRelation.exists():
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对该导图没有权限'
-            }, status=403)
-        elif coRelation[0].auth == 'ro':
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对改导图没有修改权限'
-            }, status=403)
+        if not mindMap.roomMaster == user:
+            if not coRelation.exists():
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对该导图没有权限'
+                }, status=403)
+            elif coRelation[0].auth == 'ro':
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对改导图没有修改权限'
+                }, status=403)
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
         newNode = MindNode.objects.create(
@@ -46,7 +47,7 @@ class MindMapNodeInfoView(APIView):
             type='seed',
             parent_node=parent_id,
             belong_Map=mindMap,
-            nodeId=self.newNodeID()
+            nodeId=jsonParams.get('nodeID', 100)
         )
         return JsonResponse({
             'status': True,
@@ -159,9 +160,3 @@ class MindMapNodeInfoView(APIView):
             'status': True,
             'nodeID': nodeID
         })
-
-    def newNodeID(self):
-        from datetime import datetime
-        now = datetime.now()
-        nodeId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
-        return nodeId
