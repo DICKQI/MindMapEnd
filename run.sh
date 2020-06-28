@@ -2,7 +2,7 @@
 case $1 in
     "up")
     # 启动uwsgi服务
-    uwsgi --socket :8000 --buffer-size 32768 --module TeamWorkMindMap.wsgi &
+    uwsgi --socket :8000 --buffer-size 32768 --module TeamworkMindmap.wsgi &
     ;;
     "down")
         # 关闭uwsgi服务
