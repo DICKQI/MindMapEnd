@@ -25,11 +25,11 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
-        coRelation = MindMapCoMember.objects.filter(
-            Q(map=mindMap) &
-            Q(user=user)
-        )
         if not mindMap.roomMaster == user:
+            coRelation = MindMapCoMember.objects.filter(
+                Q(map=mindMap) &
+                Q(user=user)
+            )
             if not coRelation.exists():
                 return JsonResponse({
                     'status': False,
@@ -40,6 +40,14 @@ class MindMapNodeInfoView(APIView):
                     'status': False,
                     'errMsg': '你对改导图没有修改权限'
                 }, status=403)
+        if not MindNode.objects.filter(
+            Q(nodeId=parent_id) &
+            Q(belong_Map=mindMap)
+        ).exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '父节点不存在'
+            }, status=404)
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
         newNode = MindNode.objects.create(
@@ -73,20 +81,21 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
-        coRelation = MindMapCoMember.objects.filter(
-            Q(map=mindMap) &
-            Q(user=user)
-        )
-        if not coRelation.exists():
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对该导图没有权限'
-            }, status=403)
-        elif coRelation[0].auth == 'ro':
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对改导图没有修改权限'
-            }, status=403)
+        if not mindMap.roomMaster == user:
+            coRelation = MindMapCoMember.objects.filter(
+                Q(map=mindMap) &
+                Q(user=user)
+            )
+            if not coRelation.exists():
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对该导图没有权限'
+                }, status=403)
+            elif coRelation[0].auth == 'ro':
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对改导图没有修改权限'
+                }, status=403)
         node = MindNode.objects.filter(
             Q(nodeId=nodeID) &
             Q(belong_Map=mindMap)
@@ -105,6 +114,7 @@ class MindMapNodeInfoView(APIView):
         return JsonResponse({
             'status': True,
             'nodeID': node.nodeId,
+            'parent_node': node.parent_node,
             'content': node.content,
             'mapID': mindMap.mapId
         })
@@ -125,20 +135,21 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
-        coRelation = MindMapCoMember.objects.filter(
-            Q(map=mindMap) &
-            Q(user=user)
-        )
-        if not coRelation.exists():
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对该导图没有权限'
-            }, status=403)
-        elif coRelation[0].auth == 'ro':
-            return JsonResponse({
-                'status': False,
-                'errMsg': '你对改导图没有修改权限'
-            }, status=403)
+        if not mindMap.roomMaster == user:
+            coRelation = MindMapCoMember.objects.filter(
+                Q(map=mindMap) &
+                Q(user=user)
+            )
+            if not coRelation.exists():
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对该导图没有权限'
+                }, status=403)
+            elif coRelation[0].auth == 'ro':
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '你对改导图没有修改权限'
+                }, status=403)
         node = MindNode.objects.filter(
             Q(nodeId=nodeID) &
             Q(belong_Map=mindMap)
@@ -150,7 +161,7 @@ class MindMapNodeInfoView(APIView):
             }, status=404)
         node = node[0]
         sonNode = MindNode.objects.filter(
-            Q(parent_node=node) &
+            Q(parent_node=node.nodeId) &
             Q(belong_Map=mindMap)
         )
         # 删除所有的子节点

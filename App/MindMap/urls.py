@@ -8,7 +8,7 @@ urlpatterns = [
     path('list/', MindMapListView.as_view()),
     path('<int:shareID>/', MindMapView.as_view()),
 
-    path('<int:mapID>/<int:parent_id>/', MindMapNodeInfoView.as_view()),
-    path('<int:mapID>/<int:nodeID>/', MindMapNodeInfoView.as_view()),
+    path('<int:mapID>/add/<int:parent_id>/', MindMapNodeInfoView.as_view()),
+    path('<int:mapID>/mod/<int:nodeID>/', MindMapNodeInfoView.as_view()),
     path('join/<int:shareID>/', MindMapCoInfoView.as_view())
 ]
