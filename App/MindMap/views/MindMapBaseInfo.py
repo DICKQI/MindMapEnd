@@ -11,7 +11,7 @@ import json
 
 class MindMapView(APIView):
     FIELDS = [
-        'nodeIdsd', 'content', 'parent_node'
+        'nodeId', 'content', 'parent_node'
     ]
 
     @check_login
