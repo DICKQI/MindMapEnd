@@ -23,6 +23,6 @@ case $1 in
         uwsgi --socket :8000 --buffer-size 32768 --daemonize /home/ubuntu/MindMapEnd/map.log --module TeamworkMindmap.wsgi &
     ;;
     "log")
-        tail /home/ubuntu/MindMap/map.log
+        tail -f /home/ubuntu/MindMapEnd/map.log
     ;;
 esac
