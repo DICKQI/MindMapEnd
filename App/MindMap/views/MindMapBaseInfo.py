@@ -131,6 +131,9 @@ class MindMapView(APIView):
             }, status=401)
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
+        # 删除原来所有的node
+        MindNode.objects.filter(belong_Map=mindmap).delete()
+        # 修改导图信息
         mindmap.mapName = jsonParams.get('mapName')
         if jsonParams.get('password') is not None:
             mindmap.roomPassword = jsonParams.get('password')
