@@ -47,7 +47,7 @@ class MindMapNodeInfoView(APIView):
             type='seed',
             parent_node=parent_id,
             belong_Map=mindMap,
-            nodeId=jsonParams.get('nodeID', 100)
+            nodeId=self.newNodeID()
         )
         return JsonResponse({
             'status': True,
@@ -160,3 +160,9 @@ class MindMapNodeInfoView(APIView):
             'status': True,
             'nodeID': nodeID
         })
+
+    def newNodeID(self):
+        from datetime import datetime
+        now = datetime.now()
+        nodeId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
+        return nodeId
