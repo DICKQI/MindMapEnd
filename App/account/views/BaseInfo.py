@@ -85,6 +85,11 @@ class AccountRegisterView(APIView):
                 'status': False,
                 'errMsg': '邮箱已存在'
             }, status=401)
+        if jsonParams.get('nickname') is None:
+            return JsonResponse({
+                'status': False,
+                'errMsg': "昵称不能为空"
+            }, status=401)
         if UserInfo.objects.filter(nickname=jsonParams.get('nickname')).exists():
             return JsonResponse({
                 'status': False,
