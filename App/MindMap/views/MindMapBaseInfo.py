@@ -139,12 +139,36 @@ class MindMapView(APIView):
             'roomMaster': user.nickname
         })
 
-
     @check_login
-
+    def delete(self, request, shareID):
+        """
+        删除在线导图
+        :param request:
+        :param shareID:
+        :return:
+        """
+        mindmap = MindMap.objects.filter(mapId=shareID)
+        if not mindmap.exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图不存在'
+            }, status=404)
+        mindmap = mindmap[0]
+        user = getUser(email=request.session.get('login'))
+        if mindmap.roomMaster != user:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '你不是导图所有者，不能进行操作'
+            }, status=401)
+        MindNode.objects.filter(belong_Map=mindmap).delete()
+        mindmap.delete()
+        return JsonResponse({
+            'status': True,
+            'shareID': shareID,
+            'mapName': mindmap.mapName
+        })
 
     def newShareID(self):
         now = datetime.now()
         shareId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
         return shareId
-
