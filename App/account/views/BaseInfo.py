@@ -80,6 +80,7 @@ class AccountRegisterView(APIView):
         """
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
+        # 内容检测
         if jsonParams.get('email') is None:
             return JsonResponse({
                 'status': False,
