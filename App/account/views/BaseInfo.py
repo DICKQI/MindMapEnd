@@ -80,6 +80,11 @@ class AccountRegisterView(APIView):
         """
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
+        if jsonParams.get('email') is None:
+            return JsonResponse({
+                'status': False,
+                'errMsg': "邮箱不能为空"
+            }, status=401)
         if UserInfo.objects.filter(email__exact=jsonParams.get('email')).exists():
             return JsonResponse({
                 'status': False,
@@ -95,6 +100,11 @@ class AccountRegisterView(APIView):
                 'status': False,
                 'errMsg': '昵称已存在'
             }, status=401)
+        if jsonParams.get('password') is None:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '密码不能为空'
+            })
         hash_password = make_password(jsonParams.get('password'))
         newPassword = UserPassword.objects.create(password=hash_password)
         newAccount = UserInfo.objects.create(
