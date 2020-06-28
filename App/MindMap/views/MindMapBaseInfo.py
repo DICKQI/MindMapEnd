@@ -132,8 +132,11 @@ class MindMapView(APIView):
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
         mindmap.mapName = jsonParams.get('mapName')
+        if jsonParams.get('password') is not None:
+            mindmap.roomPassword = jsonParams.get('password')
         mindmap.last_mod_date = now()
         mindmap.shareStatus = True
+        # 处理更新的node
         nodeList = jsonParams.get('node')
         for node in nodeList:
             MindNode.objects.create(
