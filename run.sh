@@ -2,7 +2,7 @@
 case $1 in
     "up")
     # 启动uwsgi服务
-    uwsgi --socket :8000 --buffer-size 32768 --daemonize /home/ubuntu/MindMap/map.log --module TeamworkMindmap.wsgi &
+    uwsgi --socket :8000 --buffer-size 32768 --daemonize /home/ubuntu/MindMapEnd/map.log --module TeamworkMindmap.wsgi &
     ;;
     "down")
         # 关闭uwsgi服务
@@ -20,7 +20,7 @@ case $1 in
         kill -9 $pid
         rm tmp
         # 启动uwsgi服务
-        uwsgi --socket :8000 --buffer-size 32768 --daemonize /home/ubuntu/MindMap/map.log --module TeamworkMindmap.wsgi &
+        uwsgi --socket :8000 --buffer-size 32768 --daemonize /home/ubuntu/MindMapEnd/map.log --module TeamworkMindmap.wsgi &
     ;;
     "log")
         tail /home/ubuntu/MindMap/map.log
