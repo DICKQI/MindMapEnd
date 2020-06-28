@@ -23,8 +23,8 @@ class MindMapView(APIView):
         """
         try:
             params = request.body
-            print(params.decode('utf-8'))
-            jsonParams = json.loads(params.decode('utf-8'))
+            print(params.decode('utf8', 'ignore'))
+            jsonParams = json.loads(params.decode('utf8', 'ignore'))
             user = getUser(email=request.session.get('login'))
             mapId = self.newShareID()
             newMindMap = MindMap.objects.create(
