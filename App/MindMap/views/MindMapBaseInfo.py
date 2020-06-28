@@ -54,7 +54,10 @@ class MindMapView(APIView):
             return JsonResponse({
                 'status': True,
                 'shareID': newMindMap.mapId,
-                'roomMaster': user.nickname
+                'roomMaster': {
+                    'name': user.nickname,
+                    'id': user.id
+                }
             })
         except Exception as e:
             print(e)
