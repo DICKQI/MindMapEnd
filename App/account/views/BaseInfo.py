@@ -104,7 +104,7 @@ class AccountRegisterView(APIView):
             return JsonResponse({
                 'status': False,
                 'errMsg': '密码不能为空'
-            }, status=401s)
+            }, status=401)
         hash_password = make_password(jsonParams.get('password'))
         newPassword = UserPassword.objects.create(password=hash_password)
         newAccount = UserInfo.objects.create(
