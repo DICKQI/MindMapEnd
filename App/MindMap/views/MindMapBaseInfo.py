@@ -153,6 +153,7 @@ class MindMapView(APIView):
             mindmap.roomPassword = jsonParams.get('password')
         mindmap.last_mod_date = now()
         mindmap.shareStatus = True  # 更新状态
+        mindmap.last_mod_date = now()
         # 重新更新node
         nodeList = jsonParams.get('node')
         for node in nodeList:
@@ -250,6 +251,7 @@ class MIndMapCloseInfo(APIView):
                 'errMsg': '导图还未开启共享'
             }, status=401)
         mindmap.shareStatus = False
+        mindmap.last_mod_date = now()
         mindmap.save()
         return JsonResponse({
             'status': True,

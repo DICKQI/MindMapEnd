@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from App.MindMap.models import MindMap, MindMapCoMember, MindNode
 from django.http import JsonResponse
+from django.utils.timezone import now
 from common.userAuthCheck import check_login, getUser
 from django.db.models import Q
 import json
@@ -62,6 +63,8 @@ class MindMapNodeInfoView(APIView):
             belong_Map=mindMap,
             nodeId=self.newNodeID()
         )
+        mindMap.last_mod_date = now()
+        mindMap.save()
         return JsonResponse({
             'status': True,
             'nodeId': newNode.nodeId,
@@ -121,6 +124,8 @@ class MindMapNodeInfoView(APIView):
         if jsonParams.get('content') is not None:
             node.content = jsonParams.get('content')
         node.save()
+        mindMap.last_mod_date = now()
+        mindMap.save()
         return JsonResponse({
             'status': True,
             'nodeID': node.nodeId,
@@ -175,6 +180,11 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': '该节点不存在'
             }, status=404)
         node = node[0]
+        if node.type == 'root':
+            return JsonResponse({
+                'status': False,
+                'errMsg': '不可以删除根节点'
+            }, status=401)
         sonNode = MindNode.objects.filter(
             Q(parent_node=node.nodeId) &
             Q(belong_Map=mindMap)
@@ -182,6 +192,8 @@ class MindMapNodeInfoView(APIView):
         # 删除所有的子节点
         sonNode.delete()
         node.delete()
+        mindMap.last_mod_date = now()
+        mindMap.save()
         return JsonResponse({
             'status': True,
             'nodeID': nodeID
