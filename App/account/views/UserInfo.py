@@ -85,6 +85,11 @@ class UserHeadInfoView(APIView):
         :param request:
         :return:
         """
+        user = getUser(email=request.session.get('login'))
+        return JsonResponse({
+            'status': True,
+            'head': user.head
+        })
 
     @check_login
     def put(self, request):
@@ -93,3 +98,20 @@ class UserHeadInfoView(APIView):
         :param request:
         :return:
         """
+        user = getUser(email=request.session.get('login'))
+        params = request.body
+        jsonParams = json.loads(params.decode('utf-8'))
+        if jsonParams.get('head') is None:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '上传头像为空'
+            })
+        user.head = jsonParams.get('head')
+        user.save()
+        return JsonResponse({
+            'status': True,
+            'user': {
+                'id': user.id,
+                'nickname': user.nickname
+            }
+        })

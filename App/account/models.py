@@ -28,7 +28,7 @@ class UserInfo(models.Model):
 
     signature = models.CharField(verbose_name='签名', max_length=100, blank=True)
 
-    head = models.TextField(verbose_name='头像', default='', blank=True)
+    head = models.TextField(verbose_name='头像', blank=True, default='')
 
     def __str__(self):
         return self.nickname
