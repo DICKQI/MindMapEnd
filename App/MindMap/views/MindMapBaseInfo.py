@@ -70,48 +70,51 @@ class MindMapView(APIView):
         :param shareID:
         :return:
         """
-        mindmap = MindMap.objects.filter(mapId=shareID)
-        if not mindmap.exists():
-            return JsonResponse({
-                'status': False,
-                'errMsg': '导图不存在'
-            }, status=404)
-        mindmap = mindmap[0]
-        # 获取在线导图节点信息
-        mind_node_obj = MindNode.objects.filter(belong_Map=mindmap)
-        mind_node_dict = [model_to_dict(obj, fields=self.FIELDS) for obj in mind_node_obj]
-        # 获取权限信息
-        user = getUser(request.session.get('login'))
-        if user == mindmap.roomMaster:  # 导图创建者
-            auth = 'rw'
-        else:
-            coMember = MindMapCoMember.objects.filter(
-                Q(map=mindmap) &
-                Q(user=user)
-            )
-            if not coMember.exists():
-                # 对导图没有权限
-                return JsonResponse({
-                    'status': True,
-                    'errMsg': '你对该导图没有权限'
-                }, status=401)
-            if not mindmap.shareStatus:
+        try:
+            mindmap = MindMap.objects.filter(mapId=shareID)
+            if not mindmap.exists():
                 return JsonResponse({
                     'status': False,
-                    'errMsg': '导图未开启共享'
-                })
-            auth = coMember.auth
-        return JsonResponse({
-            'status': True,
-            'shareId': shareID,
-            'name': mindmap.mapName,
-            'roomMaster': {
-                'name': mindmap.roomMaster.nickname,
-                'id': mindmap.roomMaster.id
-            },
-            'auth': auth,
-            'node': mind_node_dict
-        })
+                    'errMsg': '导图不存在'
+                }, status=404)
+            mindmap = mindmap[0]
+            # 获取在线导图节点信息
+            mind_node_obj = MindNode.objects.filter(belong_Map=mindmap)
+            mind_node_dict = [model_to_dict(obj, fields=self.FIELDS) for obj in mind_node_obj]
+            # 获取权限信息
+            user = getUser(request.session.get('login'))
+            if user == mindmap.roomMaster:  # 导图创建者
+                auth = 'rw'
+            else:
+                coMember = MindMapCoMember.objects.filter(
+                    Q(map=mindmap) &
+                    Q(user=user)
+                )
+                if not coMember.exists():
+                    # 对导图没有权限
+                    return JsonResponse({
+                        'status': True,
+                        'errMsg': '你对该导图没有权限'
+                    }, status=401)
+                if not mindmap.shareStatus:
+                    return JsonResponse({
+                        'status': False,
+                        'errMsg': '导图未开启共享'
+                    })
+                auth = coMember.auth
+            return JsonResponse({
+                'status': True,
+                'shareId': shareID,
+                'name': mindmap.mapName,
+                'roomMaster': {
+                    'name': mindmap.roomMaster.nickname,
+                    'id': mindmap.roomMaster.id
+                },
+                'auth': auth,
+                'node': mind_node_dict
+            })
+        except Exception as e:
+            print(e)
 
     @check_login
     def put(self, request, shareID):
