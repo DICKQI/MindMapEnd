@@ -25,6 +25,11 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
+        if not mindMap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图未开启共享功能'
+            }, status=401)
         if not mindMap.roomMaster == user:
             coRelation = MindMapCoMember.objects.filter(
                 Q(map=mindMap) &
@@ -81,6 +86,11 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
+        if not mindMap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图未开启共享功能'
+            }, status=401)
         if not mindMap.roomMaster == user:
             coRelation = MindMapCoMember.objects.filter(
                 Q(map=mindMap) &
@@ -135,6 +145,11 @@ class MindMapNodeInfoView(APIView):
                 'errMsg': "导图不存在"
             }, status=404)
         mindMap = mindMap[0]
+        if not mindMap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图未开启共享功能'
+            }, status=401)
         if not mindMap.roomMaster == user:
             coRelation = MindMapCoMember.objects.filter(
                 Q(map=mindMap) &

@@ -77,8 +77,8 @@ class MindMapView(APIView):
                 'errMsg': '导图不存在'
             }, status=404)
         mindmap = mindmap[0]
-        mind_node_obj = MindNode.objects.filter(belong_Map=mindmap)
         # 获取在线导图节点信息
+        mind_node_obj = MindNode.objects.filter(belong_Map=mindmap)
         mind_node_dict = [model_to_dict(obj, fields=self.FIELDS) for obj in mind_node_obj]
         # 获取权限信息
         user = getUser(request.session.get('login'))
@@ -95,6 +95,11 @@ class MindMapView(APIView):
                     'status': True,
                     'errMsg': '你对该导图没有权限'
                 }, status=401)
+            if not mindmap.shareStatus:
+                return JsonResponse({
+                    'status': False,
+                    'errMsg': '导图未开启共享'
+                })
             auth = coMember.auth
         return JsonResponse({
             'status': True,
@@ -129,6 +134,11 @@ class MindMapView(APIView):
                 'status': False,
                 'errMsg': '你不是导图所有者，不能进行操作'
             }, status=401)
+        if mindmap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图已经是开启分享'
+            }, status=401)
         params = request.body
         jsonParams = json.loads(params.decode('utf-8'))
         # 删除原来所有的node
@@ -138,17 +148,26 @@ class MindMapView(APIView):
         if jsonParams.get('password') is not None:
             mindmap.roomPassword = jsonParams.get('password')
         mindmap.last_mod_date = now()
-        mindmap.shareStatus = True
-        # 处理更新的node
+        mindmap.shareStatus = True  # 更新状态
+        # 重新更新node
         nodeList = jsonParams.get('node')
         for node in nodeList:
-            MindNode.objects.create(
-                nodeId=node['nodeId'],
-                content=node['content'],
-                type='seed',
-                parent_node=node['parent_node'],
-                belong_Map=mindmap
-            )
+            if node['parent_node'] == 0:
+                MindNode.objects.create(
+                    nodeId=node['nodeId'],
+                    content=node['content'],
+                    type='root',
+                    parent_node=0,
+                    belong_Map=mindmap  # 导图id可以作为唯一
+                )
+            else:
+                MindNode.objects.create(
+                    nodeId=node['nodeId'],
+                    content=node['content'],
+                    type='seed',
+                    parent_node=node['parent_node'],
+                    belong_Map=mindmap
+                )
         mindmap.save()
         return JsonResponse({
             'status': True,
@@ -196,3 +215,44 @@ class MindMapView(APIView):
         now = datetime.now()
         shareId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
         return shareId
+
+
+class MIndMapCloseInfo(APIView):
+
+    @check_login
+    def delete(self, request, shareID):
+        """
+        关闭导图协作
+        :param request:
+        :param shareID:
+        :return:
+        """
+        mindmap = MindMap.objects.filter(mapId=shareID)
+        if not mindmap.exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图不存在'
+            }, status=404)
+        mindmap = mindmap[0]
+        user = getUser(email=request.session.get('login'))
+        if mindmap.roomMaster != user:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '你不是导图所有者，不能进行操作'
+            }, status=401)
+        if not mindmap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图还未开启共享'
+            }, status=401)
+        mindmap.shareStatus = False
+        mindmap.save()
+        return JsonResponse({
+            'status': True,
+            'roomMaster': {
+                'name': user.nickname,
+                'id': user.id
+            },
+            'mapName': mindmap.mapName,
+            'shareID': shareID
+        })
