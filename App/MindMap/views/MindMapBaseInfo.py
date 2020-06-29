@@ -153,7 +153,10 @@ class MindMapView(APIView):
         return JsonResponse({
             'status': True,
             'shareID': mindmap.mapId,
-            'roomMaster': user.nickname
+            'roomMaster': {
+                'name': user.nickname,
+                'id': user.id
+            }
         })
 
     @check_login
@@ -182,7 +185,11 @@ class MindMapView(APIView):
         return JsonResponse({
             'status': True,
             'shareID': shareID,
-            'mapName': mindmap.mapName
+            'mapName': mindmap.mapName,
+            'roomMaster': {
+                'name': user.nickname,
+                'id': user.id
+            }
         })
 
     def newShareID(self):

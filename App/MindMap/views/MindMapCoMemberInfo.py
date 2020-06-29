@@ -52,7 +52,10 @@ class MindMapCoInfoView(APIView):
         return JsonResponse({
             'status': False,
             'shareID': shareID,
-            'user': user.nickname
+            'user': {
+                'name': user.nickname,
+                'id': user.id
+            }
         })
 
     @check_login
@@ -63,3 +66,32 @@ class MindMapCoInfoView(APIView):
         :param shareID:
         :return:
         """
+        mindMap = MindMap.objects.filter(mapId=shareID)
+        if not mindMap.exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图不存在'
+            }, status=404)
+        mindMap = mindMap[0]
+        user = getUser(email=request.session.get("login"))
+        if mindMap.roomMaster == user:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '你是导图所有者'
+            }, status=401)
+        coMember = MindMapCoMember.objects.filter(
+            Q(map=mindMap) &
+            Q(user=user)
+        )
+        if not coMember.exists():
+            return JsonResponse({
+                'status': False,
+                'errMsg': '你还不是导图的协作成员'
+            }, status=401)
+        coMember = coMember[0]
+        coMember.delete()
+        return JsonResponse({
+            'status': False,
+            'shareID': shareID,
+            'mapName': mindMap.mapName
+        })
