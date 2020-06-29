@@ -101,6 +101,7 @@ class MindMapView(APIView):
                         'status': False,
                         'errMsg': '导图未开启共享'
                     })
+                coMember = coMember[0]
                 auth = coMember.auth
             return JsonResponse({
                 'status': True,
