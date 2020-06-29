@@ -55,6 +55,10 @@ class MindMapCoInfoView(APIView):
             'user': {
                 'name': user.nickname,
                 'id': user.id
+            },
+            'roomMaster': {
+                'name': mindMap.roomMaster.nickname,
+                'id': mindMap.roomMaster.id
             }
         })
 
