@@ -24,6 +24,12 @@ class UserInfo(models.Model):
 
     join_date = models.DateTimeField(verbose_name='注册日期', default=now)
 
+    sex = models.CharField(verbose_name='性别', max_length=10, default='secrecy', blank=False)
+
+    signature = models.CharField(verbose_name='签名', max_length=100, blank=True)
+
+    head = models.TextField(verbose_name='头像', default='', blank=True)
+
     def __str__(self):
         return self.nickname
 

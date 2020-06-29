@@ -1,6 +1,7 @@
 from .BaseInfo import AccountBaseView, AccountRegisterView
+from .UserInfo import UserInfoView, UserHeadInfoView
 
 
 __all__ = [
-    'AccountBaseView', 'AccountRegisterView'
+    'AccountBaseView', 'AccountRegisterView', 'UserInfoView', 'UserHeadInfoView'
 ]
