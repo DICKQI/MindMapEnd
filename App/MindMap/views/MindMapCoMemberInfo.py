@@ -50,7 +50,7 @@ class MindMapCoInfoView(APIView):
             auth='rw'
         )
         return JsonResponse({
-            'status': False,
+            'status': True,
             'shareID': shareID,
             'user': {
                 'name': user.nickname,
