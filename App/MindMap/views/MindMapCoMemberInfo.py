@@ -39,6 +39,11 @@ class MindMapCoInfoView(APIView):
                 'status': False,
                 'errMsg': '你已经是导图协作成员了'
             }, status=401)
+        if not mindMap.shareStatus:
+            return JsonResponse({
+                'status': False,
+                'errMsg': '导图已经关闭共享了'
+            }, status=401)
         if not mindMap.roomPassword == jsonParams.get('password', ''):
             return JsonResponse({
                 'status': False,
