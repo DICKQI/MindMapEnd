@@ -74,7 +74,7 @@ class MindMapCoMember(models.Model):
     auth = models.CharField(verbose_name='用户权限', default='ro', blank=False, choices=auth_choose, max_length=100)
 
     def __str__(self):
-        return self.user.id
+        return self.user.nickname
 
     class Meta:
         verbose_name = '导图协作关系'
