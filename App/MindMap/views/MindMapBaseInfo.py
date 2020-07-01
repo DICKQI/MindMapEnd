@@ -217,8 +217,8 @@ class MindMapView(APIView):
         })
 
     def newShareID(self):
-        now = datetime.now()
-        shareId = int(str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second))
+        nows = datetime.now()
+        shareId = int(str(nows.month) + str(nows.day) + str(nows.hour) + str(nows.minute) + str(nows.second))
         return shareId
 
 
